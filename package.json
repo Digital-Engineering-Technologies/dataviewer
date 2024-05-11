@@ -1,0 +1,22 @@
+{
+  "name": "det-dataviewer",
+  "version": "1.0.0",
+  "description": "A all in one digital world data viewer.",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Digital-Engineering-Technologies/dataviewer.git"
+  },
+  "author": "Oscar Jacobsen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Digital-Engineering-Technologies/dataviewer/issues"
+  },
+  "homepage": "https://github.com/Digital-Engineering-Technologies/dataviewer#readme",
+  "dependencies": {
+    "openbim-components": "^1.5.1"
+  }
+}
