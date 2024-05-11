@@ -255,7 +255,7 @@
       highlighter.outlinesEnabled = true;
 
       // Raycast v1
-
+      /*
       const greenMaterial = new THREE.MeshStandardMaterial({
         color: "#FFFFFF",
       });
@@ -276,6 +276,7 @@
         prevMaterial = previousSelection.material;
         result.object.material = greenMaterial;
       };
+      */
 
       // Culler
       const culler = new OBC.ScreenCuller(components);
@@ -341,8 +342,13 @@
       // Set up dat.gui menu
 
       const gui = new dat.GUI();
+      gui.close();
 
-      const guiCustomEffects = gui.addFolder("Rendering");
+      const guiIO = gui.addFolder("World: I/O");
+      guiIO.close()
+
+      const guiCustomEffects = gui.addFolder("World: Apperance");
+      guiCustomEffects.close()
       guiCustomEffects
         .add(components.renderer.postproduction.settings, "custom")
         .name("Rendering")
@@ -390,6 +396,7 @@
         .step(0.05);
 
       const shortcutsFolder = gui.addFolder("Shortcuts");
+      shortcutsFolder.close()
 
       const shortcuts = {
         "Create clipping plane": "Double click",
@@ -399,6 +406,7 @@
       shortcutsFolder.add(shortcuts, "Delete clipping plane");
 
       const actionsFolder = gui.addFolder("Actions");
+      actionsFolder.close()
 
       let gridFlag = false;
       let a = {
