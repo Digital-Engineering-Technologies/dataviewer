@@ -56,16 +56,25 @@
           "three": "./node_modules/three/build/three.module.js",
           "three/examples/jsm/libs/lil-gui.module.min": "https://unpkg.com/three@0.160.1/examples/jsm/libs/lil-gui.module.min.js",
           "stats.js/src/Stats.js": "./node_modules/stats-js/src/Stats.js",
-          "openbim-components": "./node_modules/openbim-components/openbim-components.js"
+          "openbim-components": "./node_modules/openbim-components/openbim-components.js",
+          "@pnext/three-loader": "./node_modules/@pnext/three-loader/build/potree.js"
         }
       }
     </script>
+    
     <script type="module">
       import * as THREE from "three";
       import * as dat from "three/examples/jsm/libs/lil-gui.module.min";
       //import * as OC from '../../../node_modules/three/examples/jsm/controls/OrbitControls.js';
       import Stats from "stats.js/src/Stats.js";
       import * as OBC from "openbim-components";
+
+      //import {PointCloudOctree} from "@pnext/three-loader";
+      
+
+      //import { ShaderMaterial, Texture } from 'three';
+
+      //import * as PO from '@pnext/three-loader';
 
       const container = document.getElementById("container");
 
