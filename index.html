@@ -4,17 +4,26 @@
         <meta charset="utf-8">
 		<title>My first three.js app</title>
 		<style>
-			body { margin: 0; }
-		</style>
+            body {
+              margin: 0;
+              padding: 0;
+            }
+            .full-screen {
+              width: 100vw;
+              height: 100vh;
+              position: relative;
+              overflow: hidden;
+            }
+          </style>
     </head>
     <body>
-        <div class="container"></div>
+        <div class="full-screen" id="container"></div>
         <script type="importmap">
             {
               "imports": {
                 "three": "./node_modules/three/build/three.module.js",
                 "three/examples/jsm/libs/lil-gui.module.min": "https://unpkg.com/three@0.160.1/examples/jsm/libs/lil-gui.module.min.js",
-                "stats.js/src/Stats.js": "https://unpkg.com/stats-js@1.0.1/src/Stats.js",
+                "stats.js/src/Stats.js": "./node_modules/stats-js/src/Stats.js",
                 "openbim-components": "../../../resources/openbim-components.js"
               }
             }
@@ -22,31 +31,52 @@
         <script type="module">
             
             import * as THREE from 'three';
+            import * as dat from 'three/examples/jsm/libs/lil-gui.module.min';
+            import Stats from 'stats.js/src/Stats.js';
+            import * as OBC from 'openbim-components';
 
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            const container = document.getElementById('container');
 
-            const renderer = new THREE.WebGLRenderer();
-            renderer.setSize( window.innerWidth, window.innerHeight );
-            document.body.appendChild( renderer.domElement );
+	const components = new OBC.Components();
 
-            const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-            const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-            const cube = new THREE.Mesh( geometry, material );
-            scene.add( cube );
+	components.scene = new OBC.SimpleScene(components);
+	//components.renderer = new OBC.SimpleRenderer(components, container);
+  components.renderer = new OBC.PostproductionRenderer(components, container);
+	components.camera = new OBC.OrthoPerspectiveCamera(components);
+	components.raycaster = new OBC.SimpleRaycaster(components);
 
-            camera.position.z = 5;
+	components.init();
 
-            function animate() {
-                requestAnimationFrame( animate );
+	const scene = components.scene.get();
+  window.OBC = OBC
+  window.components = components
 
-                cube.rotation.x += 0.01;
-                cube.rotation.y += 0.01;
+  window.controls = components.camera.controls
 
-                renderer.render( scene, camera );
-            }
+  const camera = components.camera.get()
+  //camera..maxDistance = 100
 
-            animate();
+	components.camera.controls.setLookAt(10, 10, 10, 0, 0, 0);
+
+	  components.scene.setup();
+
+      components.renderer.postproduction.enabled = true;
+
+    const ambientLight = new THREE.AmbientLight();
+    ambientLight.intensity = 1.;
+    scene.add(ambientLight);
+
+    const cubeGeometry = new THREE.BoxGeometry(3, 3, 3);
+	const cubeMaterial = new THREE.MeshStandardMaterial({color: '#6528D7'});
+	const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+	cube.position.set(0, 1.5, 0);
+
+    /*MD
+    Now, we will add the Cube to the `Scene`. We must also add the **cube** to `components.meshes`,
+    which is simply an array of all the meshes in the Scene 🗄️.
+     */
+	scene.add(cube);
+	components.meshes.add(cube);
 
         </script>
     </body>
