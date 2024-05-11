@@ -1,200 +1,225 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-		<title>Digital Data Viewer</title>
-		<style>
-            body {
-              margin: 0;
-              padding: 0;
-            }
-            .full-screen {
-              width: 100vw;
-              height: 100vh;
-              position: relative;
-              overflow: hidden;
-            }
-          </style>
-    </head>
-    <body>
-        <div class="full-screen" id="container"></div>
-        <script type="importmap">
-            {
-              "imports": {
-                "three": "./node_modules/three/build/three.module.js",
-                "three/examples/jsm/libs/lil-gui.module.min": "https://unpkg.com/three@0.160.1/examples/jsm/libs/lil-gui.module.min.js",
-                "stats.js/src/Stats.js": "./node_modules/stats-js/src/Stats.js",
-                "openbim-components": "./node_modules/openbim-components/openbim-components.js"
-              }
-            }
-        </script>
-        <script type="module">
-            
-            import * as THREE from 'three';
-	import * as dat from 'three/examples/jsm/libs/lil-gui.module.min';
-  //import * as OC from '../../../node_modules/three/examples/jsm/controls/OrbitControls.js';
-	import Stats from 'stats.js/src/Stats.js';
-	import * as OBC from 'openbim-components';
+  <head>
+    <meta charset="utf-8" />
+    <title>Digital Data Viewer</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .full-screen {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        overflow: hidden;
+      }
+      @import url(https://fonts.googleapis.com/css?family=Oswald);
 
-	const container = document.getElementById('container');
+      div#text {
+        margin-top: 48px;
+        text-align: center;
+      }
+      div#dropzone {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9999999999;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        transition: visibility 175ms, opacity 175ms;
+        display: table;
+        text-shadow: 1px 1px 2px #000;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.45);
+        font: bold 42px Oswald, DejaVu Sans, Tahoma, sans-serif;
+      }
+      div#textnode {
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
+        transition: font-size 175ms;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="visibility:hidden; opacity:0" id="dropzone">
+        <div id="textnode"></div>
+    </div>
+    <div class="full-screen" id="container"></div>
+    <script src="./dropzone.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./node_modules/three/build/three.module.js",
+          "three/examples/jsm/libs/lil-gui.module.min": "https://unpkg.com/three@0.160.1/examples/jsm/libs/lil-gui.module.min.js",
+          "stats.js/src/Stats.js": "./node_modules/stats-js/src/Stats.js",
+          "openbim-components": "./node_modules/openbim-components/openbim-components.js"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      import * as dat from "three/examples/jsm/libs/lil-gui.module.min";
+      //import * as OC from '../../../node_modules/three/examples/jsm/controls/OrbitControls.js';
+      import Stats from "stats.js/src/Stats.js";
+      import * as OBC from "openbim-components";
 
-	const components = new OBC.Components();
+      const container = document.getElementById("container");
 
-	components.scene = new OBC.SimpleScene(components);
-	//components.renderer = new OBC.SimpleRenderer(components, container);
-  components.renderer = new OBC.PostproductionRenderer(components, container);
-	components.camera = new OBC.OrthoPerspectiveCamera(components);
-	components.raycaster = new OBC.SimpleRaycaster(components);
+      const components = new OBC.Components();
 
-	components.init();
+      components.scene = new OBC.SimpleScene(components);
+      //components.renderer = new OBC.SimpleRenderer(components, container);
+      components.renderer = new OBC.PostproductionRenderer(
+        components,
+        container
+      );
+      components.camera = new OBC.OrthoPerspectiveCamera(components);
+      components.raycaster = new OBC.SimpleRaycaster(components);
 
-	const scene = components.scene.get();
-  window.OBC = OBC
-  window.components = components
+      components.init();
 
-  window.controls = components.camera.controls
+      const scene = components.scene.get();
+      window.OBC = OBC;
+      window.components = components;
 
-  const camera = components.camera.get()
-  //camera..maxDistance = 100
+      window.controls = components.camera.controls;
 
-	components.camera.controls.setLookAt(10, 10, 10, 0, 0, 0);
+      const camera = components.camera.get();
+      //camera..maxDistance = 100
 
-	  components.scene.setup();
+      components.camera.controls.setLookAt(10, 10, 10, 0, 0, 0);
 
-  
-  
-    //var allCameras = scene.getObjectsByProperty( 'isCamera', true )
-  //allCameras[0].far = 20000;
-  //console.log("CAMERA")
-  //console.log(allCameras)
-    //const grid = new OBC.SimpleGrid(components);
+      components.scene.setup();
 
-    components.renderer.postproduction.enabled = true;
+      //var allCameras = scene.getObjectsByProperty( 'isCamera', true )
+      //allCameras[0].far = 20000;
+      //console.log("CAMERA")
+      //console.log(allCameras)
+      //const grid = new OBC.SimpleGrid(components);
 
-    const ambientLight = new THREE.AmbientLight();
-    ambientLight.intensity = 1.;
-    scene.add(ambientLight);
+      components.renderer.postproduction.enabled = true;
 
-    const cubeGeometry = new THREE.BoxGeometry(3, 3, 3);
-	const cubeMaterial = new THREE.MeshStandardMaterial({color: '#6528D7'});
-	const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-	cube.position.set(0, 1.5, 0);
+      const ambientLight = new THREE.AmbientLight();
+      ambientLight.intensity = 1;
+      scene.add(ambientLight);
 
-    /*MD
+      const cubeGeometry = new THREE.BoxGeometry(3, 3, 3);
+      const cubeMaterial = new THREE.MeshStandardMaterial({ color: "#6528D7" });
+      const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      cube.position.set(0, 1.5, 0);
+
+      /*MD
     Now, we will add the Cube to the `Scene`. We must also add the **cube** to `components.meshes`,
     which is simply an array of all the meshes in the Scene 🗄️.
      */
-	scene.add(cube);
-	components.meshes.add(cube);
+      scene.add(cube);
+      components.meshes.add(cube);
 
-    
+      const grid = new OBC.SimpleGrid(components, new THREE.Color(0x666666));
+      grid.visible = false;
+      const gridMesh = grid.get();
+      const effects = components.renderer.postproduction.customEffects;
+      effects.excludedMeshes.push(gridMesh);
 
-    const grid = new OBC.SimpleGrid(components, new THREE.Color(0x666666));
-    grid.visible=false;
-    const gridMesh = grid.get();
-    const effects = components.renderer.postproduction.customEffects;
-    effects.excludedMeshes.push(gridMesh);
+      effects.excludedMeshes.push(cube);
 
-    effects.excludedMeshes.push(cube)
+      const clipper = new OBC.SimpleClipper(components);
 
+      clipper.enabled = false;
 
-	const clipper = new OBC.SimpleClipper(components);
+      // Moving
+      let moveSpeed = 5;
 
-
-
-	clipper.enabled = false;
-
-  // Moving
-  let moveSpeed = 5
-
-  window.addEventListener('keydown', (e) =>{
-  switch(e.key){
-          case 'a':
-          components.camera.controls.forward(moveSpeed, true);
-          break;
-          case 'd':
-          components.camera.controls.forward(moveSpeed, true);
-          break;
-          case 'w':
-          components.camera.controls.forward(moveSpeed, true);
-          break;
-          case 's':
-          components.camera.controls.forward(-1*moveSpeed, true);
-          break;
-          case 'q':
-          components.camera.controls.elevate(-1*moveSpeed, true);
-          break;
-          case 'e':
-          components.camera.controls.elevate(moveSpeed, true);
-          break;
-          case ',':
-          components.camera.fit(components.meshes)
-          break;
-          }
-    });
-
-
-  const clipperButton = clipper.uiElement.get("main");
-	const mainToolbar = new OBC.Toolbar(components, { name: 'Main Toolbar', position: 'bottom' });
-	
-	components.ui.addToolbar(mainToolbar);
-
-  // Adding IFC Loader and button
-  let fragments = new OBC.FragmentManager(components);
-  let fragmentIfcLoader = new OBC.FragmentIfcLoader(components);
-      
-  // Dynamically load latest needed wasm
-  await fragmentIfcLoader.setup()
-
-  fragmentIfcLoader.settings.webIfc.COORDINATE_TO_ORIGIN = true;
-  fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;
-
-  window.fragmentIfcLoader = fragmentIfcLoader
-
-  mainToolbar.addChild(fragmentIfcLoader.uiElement.get("main"));
-
-  mainToolbar.addChild(clipperButton);
-
-
-  // Highlighter
-
-
-  // ClickedHightlighter
-    const highlighter = new OBC.FragmentHighlighter(components, fragments);
-    highlighter.updateHighlight();
-    //components.renderer.postproduction.customEffects.outlineEnabled = true;
-    highlighter.outlinesEnabled = true;
-
-    const highlightMaterial = new THREE.MeshBasicMaterial({
-      color: '#BCF124',
-      depthTest: false,
-      opacity: 0.8,
-      transparent: true
+      window.addEventListener("keydown", (e) => {
+        switch (e.key) {
+          case "a":
+            components.camera.controls.forward(moveSpeed, true);
+            break;
+          case "d":
+            components.camera.controls.forward(moveSpeed, true);
+            break;
+          case "w":
+            components.camera.controls.forward(moveSpeed, true);
+            break;
+          case "s":
+            components.camera.controls.forward(-1 * moveSpeed, true);
+            break;
+          case "q":
+            components.camera.controls.elevate(-1 * moveSpeed, true);
+            break;
+          case "e":
+            components.camera.controls.elevate(moveSpeed, true);
+            break;
+          case ",":
+            components.camera.fit(components.meshes);
+            break;
+        }
       });
-    const hoverHighlightMaterial = new THREE.MeshBasicMaterial({
-      color: '#ff0000',
-      depthTest: false,
-      opacity: 0.2,
-      transparent: false
+
+      const clipperButton = clipper.uiElement.get("main");
+      const mainToolbar = new OBC.Toolbar(components, {
+        name: "Main Toolbar",
+        position: "bottom",
       });
-      highlighter.add('default', highlightMaterial);
-      highlighter.add('hover', hoverHighlightMaterial);
+
+      components.ui.addToolbar(mainToolbar);
+
+      // Adding IFC Loader and button
+      let fragments = new OBC.FragmentManager(components);
+      let fragmentIfcLoader = new OBC.FragmentIfcLoader(components);
+
+      // Dynamically load latest needed wasm
+      await fragmentIfcLoader.setup();
+
+      fragmentIfcLoader.settings.webIfc.COORDINATE_TO_ORIGIN = true;
+      fragmentIfcLoader.settings.webIfc.OPTIMIZE_PROFILES = true;
+
+      window.fragmentIfcLoader = fragmentIfcLoader;
+
+      mainToolbar.addChild(fragmentIfcLoader.uiElement.get("main"));
+
+      mainToolbar.addChild(clipperButton);
+
+      // Highlighter
+
+      // ClickedHightlighter
+      const highlighter = new OBC.FragmentHighlighter(components, fragments);
+      highlighter.updateHighlight();
+      //components.renderer.postproduction.customEffects.outlineEnabled = true;
+      highlighter.outlinesEnabled = true;
+
+      const highlightMaterial = new THREE.MeshBasicMaterial({
+        color: "#BCF124",
+        depthTest: false,
+        opacity: 0.8,
+        transparent: true,
+      });
+      const hoverHighlightMaterial = new THREE.MeshBasicMaterial({
+        color: "#ff0000",
+        depthTest: false,
+        opacity: 0.2,
+        transparent: false,
+      });
+      highlighter.add("default", highlightMaterial);
+      highlighter.add("hover", hoverHighlightMaterial);
       highlighter.outlineMaterial.color.set(0xf0ff7a);
       highlighter.zoomToSelection = true;
 
       let lastSelection;
-      window.lastSelection = lastSelection
+      window.lastSelection = lastSelection;
       let singleSelection = {
         value: true,
-        };
+      };
 
       //let lastHover;
       //let singleHover = {
       //  value: true,
       //  };
 
-      
-/*
+      /*
       async function highlightOnHover(event) {
         const result = await highlighter.highlight('hover', singleHover.value);
         if (result) {
@@ -207,180 +232,225 @@
         }
         container.addEventListener('mousemove', (event) => highlightOnHover(event));
 */
-        async function highlightOnClick(event) {
-        const result = await highlighter.highlight('default', singleSelection.value);
+      async function highlightOnClick(event) {
+        const result = await highlighter.highlight(
+          "default",
+          singleSelection.value
+        );
         if (result) {
-        lastSelection = {};
-        for (const fragment of result.fragments) {
-        const fragmentID = fragment.id;
-        lastSelection[fragmentID] = [result.id];
+          lastSelection = {};
+          for (const fragment of result.fragments) {
+            const fragmentID = fragment.id;
+            lastSelection[fragmentID] = [result.id];
+          }
         }
+      }
+      container.addEventListener("dblclick", (event) =>
+        highlightOnClick(event)
+      );
+
+      components.renderer.postproduction.customEffects.outlineEnabled = true;
+      components.renderer.postproduction.customEffects.opacity = 0;
+      highlighter.outlinesEnabled = true;
+
+      // Raycast v1
+
+      const greenMaterial = new THREE.MeshStandardMaterial({
+        color: "#FFFFFF",
+      });
+      var prevMaterial;
+
+      let previousSelection;
+      window.onmousemove = () => {
+        const result = components.raycaster.castRay(components.scene.children);
+        //console.log(result)
+        if (previousSelection) {
+          previousSelection.material = prevMaterial;
         }
+        if (!result) {
+          return;
         }
-        container.addEventListener('dblclick', (event) => highlightOnClick(event));
-      
-    
-    components.renderer.postproduction.customEffects.outlineEnabled = true;
-    components.renderer.postproduction.customEffects.opacity = 0.;
-    highlighter.outlinesEnabled = true;
 
+        previousSelection = result.object;
+        prevMaterial = previousSelection.material;
+        result.object.material = greenMaterial;
+      };
 
-  // Raycast v1
+      // Culler
+      const culler = new OBC.ScreenCuller(components);
+      await culler.setup();
 
-  
-  const greenMaterial = new THREE.MeshStandardMaterial({color: '#FFFFFF'});
-  var prevMaterial;
+      culler.elements.threshold = 200;
 
-  let previousSelection;
-  window.onmousemove = () => {
-    const result = components.raycaster.castRay(components.scene.children);
-    //console.log(result)
-    if (previousSelection) {
-    previousSelection.material = prevMaterial;
-    }
-    if (!result) {
-    return;
-    }
-    
-    previousSelection = result.object;
-    prevMaterial = previousSelection.material
-    result.object.material = greenMaterial;
-    }
+      culler.elements.renderDebugFrame = true;
+      const debugFrame = culler.elements.get().domElement;
+      document.body.appendChild(debugFrame);
+      debugFrame.style.position = "fixed";
+      debugFrame.style.left = "0";
+      debugFrame.style.bottom = "0";
+      debugFrame.style.visibility = "collapse";
 
-    
-
-    // Culler
-    const culler = new OBC.ScreenCuller(components);
-    await culler.setup()
-
-    culler.elements.threshold = 200;
-
-    culler.elements.renderDebugFrame = true;
-    const debugFrame = culler.elements.get().domElement;
-    document.body.appendChild(debugFrame);
-    debugFrame.style.position = 'fixed';
-    debugFrame.style.left = '0';
-    debugFrame.style.bottom = '0';
-    debugFrame.style.visibility = 'collapse';
-
-    culler.elements.needsUpdate = true;
-      components.camera.controls.addEventListener("controlend", () => {
       culler.elements.needsUpdate = true;
+      components.camera.controls.addEventListener("controlend", () => {
+        culler.elements.needsUpdate = true;
       });
 
+      container.ondblclick = () => clipper.create();
 
-	container.ondblclick = () => clipper.create();
+      window.onkeydown = (event) => {
+        if (event.code === "Delete" || event.code === "Backspace") {
+          clipper.delete();
+        }
+      };
 
+      function listSceneObjects() {
+        //await a = components.meshes.length
+        console.log(components.meshes);
+      }
 
+      const listButton = new OBC.Button(components);
+      listButton.label = "List objects";
+      listButton.onclick = () => listSceneObjects();
 
-	window.onkeydown = (event) => {
-		if (event.code === 'Delete' || event.code === 'Backspace') {
-			clipper.delete();
-		}
-	}
+      // TODO: Add this to tutorial
+      const createButton = new OBC.Button(components);
+      createButton.label = "Add plane";
+      createButton.onclick = () => clipper.create();
 
+      const deleteButton = new OBC.Button(components);
+      deleteButton.label = "Delete plane";
+      deleteButton.onclick = () => clipper.delete();
 
-    function listSceneObjects(){
-      //await a = components.meshes.length
-      console.log(components.meshes)
-    }
+      components.ui.contextMenu.addChild(
+        listButton,
+        createButton,
+        deleteButton
+      );
 
-    const listButton = new OBC.Button(components);
-    listButton.label = "List objects";
-    listButton.onclick = () => listSceneObjects();
+      // Set up stats
 
-    // TODO: Add this to tutorial
-    const createButton = new OBC.Button(components);
-    createButton.label = "Add plane";
-    createButton.onclick = () => clipper.create();
+      const stats = new Stats();
+      stats.showPanel(2);
+      document.body.append(stats.dom);
+      stats.dom.style.left = "0px";
+      const renderer = components.renderer;
+      renderer.onBeforeUpdate.add(() => stats.begin());
+      renderer.onAfterUpdate.add(() => stats.end());
 
-    const deleteButton = new OBC.Button(components);
-    deleteButton.label = "Delete plane";
-    deleteButton.onclick = () => clipper.delete();
+      // Set up dat.gui menu
 
-    components.ui.contextMenu.addChild(listButton, createButton, deleteButton);
+      const gui = new dat.GUI();
 
+      const guiCustomEffects = gui.addFolder("Rendering");
+      guiCustomEffects
+        .add(components.renderer.postproduction.settings, "custom")
+        .name("Rendering")
+        .onChange((value) => {
+          components.renderer.postproduction.setPasses({ custom: value });
+        });
+      guiCustomEffects
+        .add(components.renderer.postproduction.customEffects, "opacity")
+        .name("Line opacity")
+        .min(0)
+        .max(1)
+        .step(0.1);
+      guiCustomEffects
+        .add(components.renderer.postproduction.customEffects, "tolerance")
+        .name("Line tolerance")
+        .min(0)
+        .max(6)
+        .step(1);
+      guiCustomEffects
+        .addColor(components.renderer.postproduction.customEffects, "lineColor")
+        .name("Line color");
+      guiCustomEffects
+        .add(components.renderer.postproduction.customEffects, "glossEnabled")
+        .name("Gloss enabled")
+        .min(0)
+        .max(2)
+        .step(0.1);
+      guiCustomEffects
+        .add(components.renderer.postproduction.customEffects, "glossExponent")
+        .name("Gloss exponent")
+        .min(0)
+        .max(5)
+        .step(0.1);
+      guiCustomEffects
+        .add(components.renderer.postproduction.customEffects, "maxGloss")
+        .name("Max gloss")
+        .min(-2)
+        .max(2)
+        .step(0.05);
+      guiCustomEffects
+        .add(components.renderer.postproduction.customEffects, "minGloss")
+        .name("Min gloss")
+        .min(-2)
+        .max(2)
+        .step(0.05);
 
-    // Set up stats
+      const shortcutsFolder = gui.addFolder("Shortcuts");
 
-	const stats = new Stats();
-	stats.showPanel(2);
-	document.body.append(stats.dom);
-	stats.dom.style.left = '0px';
-	const renderer = components.renderer;
-	renderer.onBeforeUpdate.add(() => stats.begin());
-	renderer.onAfterUpdate.add(() => stats.end());
+      const shortcuts = {
+        "Create clipping plane": "Double click",
+        "Delete clipping plane": "Delete",
+      };
+      shortcutsFolder.add(shortcuts, "Create clipping plane");
+      shortcutsFolder.add(shortcuts, "Delete clipping plane");
 
-	// Set up dat.gui menu
+      const actionsFolder = gui.addFolder("Actions");
 
-	const gui = new dat.GUI();
+      let gridFlag = false;
+      let a = {
+        "Toggle grid": () => {
+          gridFlag = !gridFlag;
+          grid.visible = gridFlag;
+        },
+      };
 
-  const guiCustomEffects = gui.addFolder('Rendering');
-guiCustomEffects.add(components.renderer.postproduction.settings, 'custom').name("Rendering").onChange((value) => {
-  components.renderer.postproduction.setPasses({custom: value});
-});
-guiCustomEffects.add(components.renderer.postproduction.customEffects, 'opacity').name('Line opacity').min(0).max(1).step(0.1);
-guiCustomEffects.add(components.renderer.postproduction.customEffects, 'tolerance').name('Line tolerance').min(0).max(6).step(1);
-guiCustomEffects.addColor(components.renderer.postproduction.customEffects, 'lineColor').name('Line color');
-guiCustomEffects.add(components.renderer.postproduction.customEffects, 'glossEnabled').name('Gloss enabled').min(0).max(2).step(0.1);
-guiCustomEffects.add(components.renderer.postproduction.customEffects, 'glossExponent').name('Gloss exponent').min(0).max(5).step(0.1);
-guiCustomEffects.add(components.renderer.postproduction.customEffects, 'maxGloss').name('Max gloss').min(-2).max(2).step(0.05);
-guiCustomEffects.add(components.renderer.postproduction.customEffects, 'minGloss').name('Min gloss').min(-2).max(2).step(0.05);
+      actionsFolder.add(a, "Toggle grid");
+      actionsFolder
+        .add(clipper, "enabled")
+        .name("Toggle clipping planes enabled");
+      actionsFolder
+        .add(clipper, "visible")
+        .name("Toggle clipping planes visible");
 
-	const shortcutsFolder = gui.addFolder('Shortcuts');
+      const color = {
+        value: 0x000000,
+      };
 
-	const shortcuts = {
-		'Create clipping plane': "Double click" ,
-		'Delete clipping plane': "Delete"
-	}
-	shortcutsFolder.add(shortcuts, 'Create clipping plane');
-	shortcutsFolder.add(shortcuts, 'Delete clipping plane');
+      const helperColor = new THREE.Color();
+      actionsFolder
+        .addColor(color, "value")
+        .name("Plane color")
+        .onChange((value) => {
+          helperColor.setHex(value);
+          clipper.material.color = helperColor;
+        });
 
-	const actionsFolder = gui.addFolder('Actions');
+      clipper.material.opacity = 0;
+      actionsFolder.add(clipper, "size").name("Plane Size").min(0).max(15);
+      actionsFolder
+        .add(clipper.material, "opacity")
+        .name("Plane Opacity")
+        .min(0)
+        .max(1);
 
-  let gridFlag = false;
-  let a = {"Toggle grid": ()=>{
-    gridFlag = !gridFlag;
-    grid.visible = gridFlag 
-    }}
+      const actions = {
+        "Delete all planes": () => {
+          clipper.deleteAll();
+        },
+        "Rotate cube": () => {
+          cube.rotation.x = 2 * Math.PI * Math.random();
+          cube.rotation.y = 2 * Math.PI * Math.random();
+          cube.rotation.z = 2 * Math.PI * Math.random();
+        },
+      };
 
-  actionsFolder.add(a, 'Toggle grid')
-	actionsFolder.add(clipper, 'enabled').name("Toggle clipping planes enabled");
-	actionsFolder.add(clipper, 'visible').name("Toggle clipping planes visible");
+      actionsFolder.add(actions, "Rotate cube");
+      actionsFolder.add(actions, "Delete all planes");
 
-	const color = {
-		value: 0x000000
-	}
-
-	const helperColor = new THREE.Color();
-	actionsFolder.addColor(color, "value")
-		.name("Plane color")
-		.onChange((value) => {
-			helperColor.setHex(value);
-			clipper.material.color = helperColor;
-		});
-
-    clipper.material.opacity = 0.
-	actionsFolder.add(clipper, 'size').name("Plane Size").min(0).max(15);
-	actionsFolder.add(clipper.material, 'opacity').name("Plane Opacity").min(0).max(1);
-
-	const actions = {
-		'Delete all planes': () => {
-			clipper.deleteAll();
-		},
-		'Rotate cube': () => {
-			cube.rotation.x = 2 * Math.PI * Math.random();
-			cube.rotation.y = 2 * Math.PI * Math.random();
-			cube.rotation.z = 2 * Math.PI * Math.random();
-		}
-	}
-
-	actionsFolder.add(actions, 'Rotate cube');
-	actionsFolder.add(actions, 'Delete all planes');
-
-  
-  const fragmentBbox = new OBC.FragmentBoundingBox(components);
-
-        </script>
-    </body>
+      const fragmentBbox = new OBC.FragmentBoundingBox(components);
+    </script>
+  </body>
 </html>
